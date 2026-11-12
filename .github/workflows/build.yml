@@ -1,0 +1,25 @@
+name: Build
+on: [push, workflow_dispatch]
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+      - run: cmake --build build --config Release
+      - run: bash installer/make_mac_pkg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MixPlay-macOS-Installer
+          path: dist/MixPlay-macOS.pkg
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -B build -A x64
+      - run: cmake --build build --config Release
+      - run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\windows.iss'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MixPlay-Windows-Installer
+          path: dist/MixPlay-Windows-Setup.exe
